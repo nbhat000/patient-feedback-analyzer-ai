@@ -14,9 +14,15 @@ export default function Page() {
   );
 
   const onAnalyze = async (text: string) => {
-    const res = await analyzeFeedbackMock(text); // swap for real data
-    setResults((prev) => [res, ...prev]);
-    setSelectedId(res.id);
+    const res = await fetch("/api/analyze", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ text }),
+    });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || "Failed");
+    setResults((prev) => [data, ...prev]);
+    setSelectedId(data.id);
   };
 
   return (
@@ -38,3 +44,6 @@ export default function Page() {
     </main>
   );
 }
+
+
+
