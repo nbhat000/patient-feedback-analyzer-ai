@@ -1,36 +1,73 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Patient Feedback Analyzer with AI
 
-## Getting Started
+This is a dashboard for analyzing patient feedback with AI. It uses OpenAI in the backend.
 
-First, run the development server:
+---
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## Screenshot
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+![App Screenshot](./readme-images/app-screenshot.png)
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## How to Run
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Install dependencies (use `pnpm` to make it faster):
 
-## Learn More
+   ```bash
+   pnpm install
+   ```
 
-To learn more about Next.js, take a look at the following resources:
+2. Add an OpenAI API key in `.env` (make sure to put in .gitignore)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+   ```
+   OPENAI_API_KEY=...
+   ```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+   If no key is set, the app uses a simple mock analyzer.
 
-## Deploy on Vercel
+3. Start the dev server:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+   ```bash
+   pnpm run dev
+   ```
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+4. Open [http://localhost:3000](http://localhost:3000) in a browser.
+
+---
+
+## What It Does
+
+Allows patients to submit feedback on their physicians, the hospital environment, etc. It then analyzes these comments and provides a sentiment analysis. It stores a history of all feedback and surfaces key insights from the data. 
+
+It saves each submission in a JSONL file (`data/feedback.jsonl`). This was a quick way to persist data without setting up a real database.
+
+---
+
+## What I prioritized and why
+
+* Made sure the whole loop works: input box -> API -> analysis with ChatGPT -> history → show on UI.
+* Used Tailwind to make it look good quickly
+* Added a couple of metrics to show how usage data could be summarized.
+
+
+## What I’d Do With 1 More Hour
+
+* Add CSV or JSON import of patient feedback (have to manually paste in right now)
+* Switch from file storage to an actual database like Supabase so metrics are easier to query
+* Make metrics prettier / add more metrics
+
+---
+
+## Security / Compliance Notes
+
+* Remove any personally identifiable information before sending to LLM, so that the person submitting feedback can't be identified.
+* Data at rest and in transit should be encrypted.
+* Retention and deletion policies should be clear and enforced.
+* Avoid storing raw text when possible. Structured insights may be enough.
+
+---
+
+## Possible Future Metrics
+
+* Negative sentiment % over time (is it rising?)
+* Topics most often linked to negative sentiment (what's causing the most complaints?)
+* What percentage of feedback is actually actionable? (could maybe even use LLM to identify action items)

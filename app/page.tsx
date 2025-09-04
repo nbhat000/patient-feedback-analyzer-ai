@@ -1,49 +1,48 @@
 "use client";
-import { useMemo, useState } from "react";
+import { useState } from "react";
 import FeedbackForm from "@/app/ui/components/FeedbackForm";
-import InsightCard from "@/app/ui/components/InsightCard";
 import HistoryList from "@/app/ui/components/HistoryList";
-import { analyzeFeedbackMock, type AnalysisResult } from "@/app/lib/mockClient";
+import InsightCard from "@/app/ui/components/InsightCard";
+import Metrics from "@/app/ui/components/Metrics";
 
 export default function Page() {
-  const [results, setResults] = useState<AnalysisResult[]>([]);
+  const [lastResult, setLastResult] = useState<any>(null);
   const [selectedId, setSelectedId] = useState<string | undefined>(undefined);
-  const selected = useMemo(
-    () => results.find((r) => r.id === selectedId) || results[0],
-    [results, selectedId]
-  );
+  const [refreshKey, setRefreshKey] = useState<number>(0);
 
   const onAnalyze = async (text: string) => {
     const res = await fetch("/api/analyze", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ text }),
+      cache: "no-store",
     });
     const data = await res.json();
     if (!res.ok) throw new Error(data?.error || "Failed");
-    setResults((prev) => [data, ...prev]);
+
+    setLastResult(data);
     setSelectedId(data.id);
+    setRefreshKey((v) => v + 1);
   };
 
   return (
     <main className="max-w-6xl mx-auto p-6 grid grid-cols-12 gap-6">
       <section className="col-span-5 space-y-6">
         <div className="bg-white border rounded-lg p-4">
-          <h2 className="text-black font-semibold mb-2">Submit Feedback</h2>
+          <h2 className="font-semibold mb-2 text-gray-900">Submit Feedback</h2>
           <FeedbackForm onAnalyze={onAnalyze} />
         </div>
+
         <div className="bg-white border rounded-lg p-4">
-          <h2 className="text-black font-semibold mb-2">History</h2>
-          <HistoryList items={results} onSelect={(id) => setSelectedId(id)} />
+          <h2 className="font-semibold mb-2 text-gray-900">History</h2>
+          <HistoryList refreshKey={refreshKey} onSelect={(id) => setSelectedId(id)} />
         </div>
       </section>
 
       <section className="col-span-7 space-y-6">
-        <InsightCard data={selected} />
+        <InsightCard data={lastResult} />
+        <Metrics refreshKey={refreshKey} />
       </section>
     </main>
   );
 }
-
-
-
