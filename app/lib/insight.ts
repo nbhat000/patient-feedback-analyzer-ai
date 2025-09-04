@@ -7,7 +7,6 @@ export const AnalyzeInput = z.object({
 export const InsightSchema = z.object({
     sentiment: z.enum(["positive", "neutral", "negative"]),
     key_topics: z.array(z.string()).max(5),
-    action_required: z.boolean(),
     summary: z.string().min(1),
 });
 

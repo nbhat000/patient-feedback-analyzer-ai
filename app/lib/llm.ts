@@ -7,7 +7,6 @@ export async function analyzeWithLLM(text: string): Promise<Insight> {
     const prompt = `Analyze this customer feedback and return JSON with:
 - sentiment: positive/neutral/negative
 - key_topics: array of 3-5 main topics
-- action_required: boolean
 - summary: one sentence summary
 
 Only return valid JSON. Feedback:
