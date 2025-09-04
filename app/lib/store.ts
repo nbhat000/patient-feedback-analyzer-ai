@@ -20,7 +20,21 @@ export async function listSubmissions(limit = 50): Promise<Submission[]> {
     ensureFile();
     const txt = await fs.promises.readFile(FILE, "utf8");
     const lines = txt.trim() ? txt.trim().split("\n") : [];
-    const arr = lines.map((l) => JSON.parse(l) as Submission);
+    
+    const arr: Submission[] = [];
+    for (const line of lines) {
+        try {
+            const parsed = JSON.parse(line);
+            // Skip entries with old latencyMs field
+            if (!parsed.latencyMs) {
+                arr.push(parsed as Submission);
+            }
+        } catch (e) {
+            // Skip malformed lines
+            console.warn("Skipping malformed JSON line:", line);
+        }
+    }
+    
     // newest first
     return arr.reverse().slice(0, limit);
 }

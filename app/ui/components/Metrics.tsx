@@ -25,17 +25,31 @@ export default function Metrics({ refreshKey }: { refreshKey?: number }) {
         (async () => {
             const res = await fetch("/api/metrics", { cache: "no-store" });
             const json = await res.json();
+            console.log("Metrics data:", json); // Debug log
             setData(json);
         })();
     }, [refreshKey]);
 
     if (!data) return <p className="text-sm text-gray-700">Loading metrics…</p>;
 
+    // Filter out zero values and ensure proper data structure
     const sentimentData = [
         { name: "Positive", value: data.sentiments.positive },
         { name: "Neutral", value: data.sentiments.neutral },
         { name: "Negative", value: data.sentiments.negative },
-    ];
+    ].filter(item => item.value > 0); // Only show segments with values > 0
+
+    console.log("Sentiment data for chart:", sentimentData); // Debug log
+
+    // Map colors correctly based on sentiment names
+    const getColorForSentiment = (name: string) => {
+        switch (name) {
+            case "Positive": return "#10b981"; // green
+            case "Neutral": return "#9ca3af";  // gray
+            case "Negative": return "#ef4444"; // red
+            default: return "#9ca3af"; // gray fallback
+        }
+    };
 
     return (
         <div className="space-y-4">
@@ -79,10 +93,10 @@ export default function Metrics({ refreshKey }: { refreshKey?: number }) {
                                 cy="50%"
                                 innerRadius={50}
                                 outerRadius={80}
-                                label
+                                label={({ name, value }) => `${name}: ${value}`}
                             >
-                                {sentimentData.map((_, i) => (
-                                    <Cell key={i} fill={COLORS[i]} />
+                                {sentimentData.map((entry, i) => (
+                                    <Cell key={`cell-${i}`} fill={getColorForSentiment(entry.name)} />
                                 ))}
                             </Pie>
                             <Tooltip />
